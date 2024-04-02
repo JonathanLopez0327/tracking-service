@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import service.budget.tracking.model.AccountDetailsReponse;
 import service.budget.tracking.model.AccountRequest;
 import service.budget.tracking.model.AccountResponse;
 import service.budget.tracking.service.AccountService;
@@ -39,9 +40,39 @@ public class AccountController {
         return new ResponseEntity<>(accountResponse, HttpStatus.OK);
     }
 
+    @GetMapping("/details")
+    public ResponseEntity<List<AccountDetailsReponse>> getAccountByIdWithDetails() {
+        List<AccountDetailsReponse> accountResponse = accountService.getAccountWithDetails();
+        return new ResponseEntity<>(accountResponse, HttpStatus.OK);
+    }
+
+    @GetMapping("/details/{id}")
+    public ResponseEntity<AccountDetailsReponse> getAccountByIdWithDetails(@PathVariable("id") long id) {
+        AccountDetailsReponse accountResponse = accountService.getAccountByIdWithDetails(id);
+        return new ResponseEntity<>(accountResponse, HttpStatus.OK);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAccountById(@PathVariable("id") long id) {
         accountService.deleteAccountById(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping("/credit/{id}")
+    public ResponseEntity<Void> creditAmount(@PathVariable("id") long id, @RequestParam double amount) {
+        accountService.creditAmount(id, amount);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping("/debit/{id}")
+    public ResponseEntity<Void> debitAmount(@PathVariable("id") long id, @RequestParam double amount) {
+        accountService.debitAmount(id, amount);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> updateAccount(@PathVariable("id") long id, @RequestBody AccountRequest request) {
+        accountService.updateAccount(id, request);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

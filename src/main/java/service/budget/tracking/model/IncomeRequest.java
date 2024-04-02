@@ -14,7 +14,8 @@ import lombok.NoArgsConstructor;
 public class IncomeRequest {
     @NotNull
     @Min(1)
-    private long incomeAmount;
-    private String incomeCategory;
+    private double incomeAmount;
+    private long accountId;
+    private IncomeCategory incomeCategory;
     private String incomeDescription;
 }

@@ -15,11 +15,8 @@ import lombok.NoArgsConstructor;
 public class ExpenseRequest {
     @NotNull
     @Min(1)
-    private long expenseAmount;
-
-    @NotEmpty
-    private String expenseCategory;
-
-    @NotEmpty
+    private double expenseAmount;
+    private long accountId;
+    private ExpenseCategory expenseCategory;
     private String expenseDescription;
 }

@@ -2,6 +2,7 @@ package service.budget.tracking.service;
 
 import jakarta.validation.*;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import service.budget.tracking.entity.Expense;
@@ -9,6 +10,7 @@ import service.budget.tracking.exception.ServiceCustomException;
 import service.budget.tracking.model.ExpenseRequest;
 import service.budget.tracking.model.ExpenseResponse;
 import service.budget.tracking.repository.ExpenseRepository;
+import service.budget.tracking.service.mediator.TrackingMediator;
 
 import java.time.Instant;
 import java.time.YearMonth;
@@ -24,10 +26,12 @@ import static org.springframework.beans.BeanUtils.copyProperties;
 public class ExpenseServiceImpl implements ExpenseService {
 
     private final ExpenseRepository repository;
+    private final TrackingMediator trackingMediator;
 
     @Autowired
-    public ExpenseServiceImpl(ExpenseRepository repository) {
+    public ExpenseServiceImpl(ExpenseRepository repository, TrackingMediator trackingMediator) {
         this.repository = repository;
+        this.trackingMediator = trackingMediator;
     }
 
     private String getCurrentPeriod() {
@@ -51,11 +55,16 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         Expense expense = Expense.builder()
                 .expenseAmount(request.getExpenseAmount())
+                .accountId(request.getAccountId())
                 .expenseCategory(request.getExpenseCategory())
                 .expenseDescription(request.getExpenseDescription())
                 .expenseDate(Instant.now())
-                .period(getCurrentPeriod())
+                .expensePeriod(getCurrentPeriod())
                 .build();
+
+        // Debit expense
+        trackingMediator.debitAmountToAccount(request.getAccountId(), request.getExpenseAmount());
+        log.info("Expense credited to account: {}", request.getAccountId());
 
         repository.save(expense);
         log.info("Expense created!");
@@ -103,12 +112,16 @@ public class ExpenseServiceImpl implements ExpenseService {
                         "EXPENSE_NOT_FOUND",
                         404
                 ));
+
+        trackingMediator.creditAmountToAccount(expense.getAccountId(), expense.getExpenseAmount());
+        log.info("Expense removed from account: {}", expense.getAccountId());
+
         repository.delete(expense);
         log.info("Expense deleted!");
     }
 
     @Override
-    public long updateExpense(long id, ExpenseRequest request) {
+    public void updateExpense(long id, ExpenseRequest request) {
         log.info("Getting expense with given id: {}", id);
 
         Expense expense = repository.findById(id)
@@ -130,29 +143,48 @@ public class ExpenseServiceImpl implements ExpenseService {
             );
         }
 
-        if (request.getExpenseAmount() != 0) {
-            expense.setExpenseAmount(request.getExpenseAmount());
-        }
-        if (!request.getExpenseCategory().isEmpty()) {
+        trackingMediator.creditAmountToAccount(expense.getAccountId(), expense.getExpenseAmount());
+
+        if (!request.getExpenseCategory().toString().isEmpty()) {
             expense.setExpenseCategory(request.getExpenseCategory());
         }
-        if (!request.getExpenseCategory().isEmpty()) {
+        if (!request.getExpenseDescription().isEmpty()) {
             expense.setExpenseDescription(request.getExpenseDescription());
         }
 
-        try {
-            repository.save(expense);
-            log.info("Expense updated!");
-            return expense.getExpenseId();
-        } catch (ServiceCustomException e) {
-            log.error("Error updating expense: ", e);
+        if (request.getExpenseAmount() != 0 && request.getExpenseAmount() != 0) {
+            expense.setAccountId(request.getAccountId());
+            expense.setExpenseAmount(request.getExpenseAmount());
 
-            throw new ServiceCustomException(
-                    "Error modifying expense",
-                    "BAD_REQUEST",
-                    500
-            );
+            try {
+                trackingMediator.debitAmountToAccount(expense.getAccountId(), expense.getExpenseAmount());
+                log.info("Account updated!");
+                repository.save(expense);
+                log.info("Expense updated!");
+            } catch (ServiceCustomException e) {
+                log.error("Error updating expense: ", e);
+
+                throw new ServiceCustomException(
+                        "Error modifying expense",
+                        "BAD_REQUEST",
+                        500
+                );
+            }
         }
+    }
+
+    @Override
+    public List<ExpenseResponse> getExpenseByAccount(long id) {
+        log.info("Getting expenses with given account id: {}", id);
+        List<Expense> expenseList = repository.findByAccountId(id);
+
+        return expenseList
+                .stream()
+                .map(expense -> {
+                    ExpenseResponse response = new ExpenseResponse();
+                    BeanUtils.copyProperties(expense, response);
+                    return response;
+                }).toList();
     }
 
 }

@@ -1,5 +1,6 @@
 package service.budget.tracking.service;
 
+import service.budget.tracking.model.AccountDetailsReponse;
 import service.budget.tracking.model.AccountRequest;
 import service.budget.tracking.model.AccountResponse;
 
@@ -13,4 +14,14 @@ public interface AccountService {
     AccountResponse getAccountById(long id);
 
     void deleteAccountById(long id);
+
+    void creditAmount(long id, double amount);
+
+    void debitAmount(long id, double amount);
+
+    void updateAccount(long id, AccountRequest request);
+
+    AccountDetailsReponse getAccountByIdWithDetails(long id);
+
+    List<AccountDetailsReponse> getAccountWithDetails();
 }

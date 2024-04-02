@@ -15,5 +15,5 @@ public class AccountResponse {
     private String accountName;
     private String accountDescription;
     private AccountType accountType;
-    private long totalAmount;
+    private double totalAmount;
 }

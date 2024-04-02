@@ -14,5 +14,7 @@ public interface IncomeService {
 
     void deleteIncomeById(long id);
 
-    long updateIncomeById(long id, IncomeRequest request);
+    void updateIncomeById(long id, IncomeRequest request);
+
+    List<IncomeResponse> getIncomeByAccount(long id);
 }

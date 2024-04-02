@@ -1,10 +1,12 @@
 package service.budget.tracking.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import service.budget.tracking.model.IncomeCategory;
 
 import java.time.Instant;
 
@@ -18,9 +20,13 @@ public class Income {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long incomeId;
+    private long accountId;
+    private double incomeAmount;
 
-    private long incomeAmount;
-    private String incomeCategory;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private IncomeCategory incomeCategory;
+
     private String incomeDescription;
     private Instant incomeDate;
     private String incomePeriod;

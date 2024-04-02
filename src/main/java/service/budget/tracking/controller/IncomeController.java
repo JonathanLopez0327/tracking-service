@@ -33,6 +33,12 @@ public class IncomeController {
         return new ResponseEntity<>(incomeResponses, HttpStatus.OK);
     }
 
+    @GetMapping("/accounts/{id}")
+    public ResponseEntity<List<IncomeResponse>> getIncomeByAccount(@PathVariable("id") long id) {
+        List<IncomeResponse> incomeResponses = incomeService.getIncomeByAccount(id);
+        return new ResponseEntity<>(incomeResponses, HttpStatus.OK);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<IncomeResponse> getIncomeById(@PathVariable("id") long id) {
          IncomeResponse incomeResponse = incomeService.getIncomeById(id);
@@ -46,9 +52,9 @@ public class IncomeController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Long> updateIncomeById(@PathVariable("id") long id,
+    public ResponseEntity<Void> updateIncomeById(@PathVariable("id") long id,
                                                  @RequestBody IncomeRequest request) {
-        long incomeId = incomeService.updateIncomeById(id, request);
-        return new ResponseEntity<>(incomeId, HttpStatus.OK);
+        incomeService.updateIncomeById(id, request);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

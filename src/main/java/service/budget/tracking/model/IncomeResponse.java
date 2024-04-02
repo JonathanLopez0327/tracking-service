@@ -13,9 +13,9 @@ import java.time.Instant;
 @Builder
 public class IncomeResponse {
     private long incomeId;
-
-    private long incomeAmount;
-    private String incomeCategory;
+    private long accountId;
+    private double incomeAmount;
+    private IncomeCategory incomeCategory;
     private String incomeDescription;
     private Instant incomeDate;
     private String incomePeriod;

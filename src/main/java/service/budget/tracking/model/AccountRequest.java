@@ -13,10 +13,6 @@ import lombok.NoArgsConstructor;
 public class AccountRequest {
     private String accountName;
     private String accountDescription;
-
-    @NotNull
     private AccountType accountType;
-
-    @NotNull
-    private long totalAmount;
+    private double totalAmount;
 }

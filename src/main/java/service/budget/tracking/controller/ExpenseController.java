@@ -41,6 +41,13 @@ public class ExpenseController {
         return new ResponseEntity<>(expenseResponse, HttpStatus.OK);
     }
 
+    @GetMapping("/accounts/{id}")
+    public ResponseEntity<List<ExpenseResponse>> getExpenseByAccount(@PathVariable("id") long id) {
+        List<ExpenseResponse> expenseResponses =
+                expenseService.getExpenseByAccount(id);
+        return new ResponseEntity<>(expenseResponses, HttpStatus.OK);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteExpense(@PathVariable("id") long id) {
         expenseService.deleteExpense(id);
@@ -48,9 +55,9 @@ public class ExpenseController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Long> updateExpense(@PathVariable("id") long id,
+    public ResponseEntity<Void> updateExpense(@PathVariable("id") long id,
                                               @RequestBody ExpenseRequest request) {
-        long expenseId = expenseService.updateExpense(id, request);
-        return new ResponseEntity<>(expenseId, HttpStatus.OK);
+        expenseService.updateExpense(id, request);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

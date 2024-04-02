@@ -14,5 +14,7 @@ public interface ExpenseService {
 
     void deleteExpense(long id);
 
-    long updateExpense(long id, ExpenseRequest request);
+    void updateExpense(long id, ExpenseRequest request);
+
+    List<ExpenseResponse> getExpenseByAccount(long id);
 }

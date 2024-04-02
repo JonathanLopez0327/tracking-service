@@ -13,9 +13,10 @@ import java.time.Instant;
 @Builder
 public class ExpenseResponse {
     private long expenseId;
-    private long expenseAmount;
-    private String expenseCategory;
+    private long accountId;
+    private double expenseAmount;
+    private ExpenseCategory expenseCategory;
     private String expenseDescription;
     private Instant expenseDate;
-    private String period;
+    private String expensePeriod;
 }
