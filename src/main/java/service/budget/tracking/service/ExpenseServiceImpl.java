@@ -5,6 +5,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import service.budget.tracking.entity.Account;
 import service.budget.tracking.entity.Expense;
 import service.budget.tracking.exception.ServiceCustomException;
 import service.budget.tracking.model.ExpenseRequest;
@@ -53,9 +54,11 @@ public class ExpenseServiceImpl implements ExpenseService {
     public long createExpense(ExpenseRequest request) {
         log.info("Creating new expense...");
 
+        Account account = trackingMediator.getAccount(request.getAccountId());
+
         Expense expense = Expense.builder()
                 .expenseAmount(request.getExpenseAmount())
-                .accountId(request.getAccountId())
+                .account(account)
                 .expenseCategory(request.getExpenseCategory())
                 .expenseDescription(request.getExpenseDescription())
                 .expenseDate(Instant.now())
@@ -63,8 +66,8 @@ public class ExpenseServiceImpl implements ExpenseService {
                 .build();
 
         // Debit expense
-        trackingMediator.debitAmountToAccount(request.getAccountId(), request.getExpenseAmount());
-        log.info("Expense credited to account: {}", request.getAccountId());
+        trackingMediator.debitAmountToAccount(account.getId(), request.getExpenseAmount());
+        log.info("Expense credited to account: {}", account.getId());
 
         repository.save(expense);
         log.info("Expense created!");
@@ -112,9 +115,14 @@ public class ExpenseServiceImpl implements ExpenseService {
                         "EXPENSE_NOT_FOUND",
                         404
                 ));
+        try {
+            Account account = expense.getAccount();
+            trackingMediator.creditAmountToAccount(account.getId(), expense.getExpenseAmount());
+        } catch (ServiceCustomException e) {
+            log.error("Account not found for id: {}, continuing with deletion", expense.getAccount().getId());
+        }
 
-        trackingMediator.creditAmountToAccount(expense.getAccountId(), expense.getExpenseAmount());
-        log.info("Expense removed from account: {}", expense.getAccountId());
+        log.info("Expense removed from account: {}", expense.getAccount().getId());
 
         repository.delete(expense);
         log.info("Expense deleted!");
@@ -143,7 +151,12 @@ public class ExpenseServiceImpl implements ExpenseService {
             );
         }
 
-        trackingMediator.creditAmountToAccount(expense.getAccountId(), expense.getExpenseAmount());
+        try {
+            Account account = expense.getAccount();
+            trackingMediator.creditAmountToAccount(account.getId(), expense.getExpenseAmount());
+        } catch (ServiceCustomException e) {
+            log.error("Account not found for id: {}, continuing with the update", expense.getAccount().getId());
+        }
 
         if (!request.getExpenseCategory().toString().isEmpty()) {
             expense.setExpenseCategory(request.getExpenseCategory());
@@ -153,11 +166,13 @@ public class ExpenseServiceImpl implements ExpenseService {
         }
 
         if (request.getExpenseAmount() != 0 && request.getExpenseAmount() != 0) {
-            expense.setAccountId(request.getAccountId());
+            Account newAccount = trackingMediator.getAccount(request.getAccountId());
+            expense.setAccount(newAccount);
             expense.setExpenseAmount(request.getExpenseAmount());
 
             try {
-                trackingMediator.debitAmountToAccount(expense.getAccountId(), expense.getExpenseAmount());
+                Account account = expense.getAccount();
+                trackingMediator.debitAmountToAccount(account.getId(), expense.getExpenseAmount());
                 log.info("Account updated!");
                 repository.save(expense);
                 log.info("Expense updated!");

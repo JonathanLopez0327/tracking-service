@@ -5,6 +5,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import service.budget.tracking.entity.Account;
+import service.budget.tracking.model.AccountResponse;
 import service.budget.tracking.service.AccountService;
 
 @Service
@@ -29,5 +31,11 @@ public class TrackingMediatorImpl implements TrackingMediator {
     public void creditAmountToAccount(long id, double amount) {
         log.info("Crediting through mediator...");
         accountService.creditAmount(id, amount);
+    }
+
+    @Override
+    public Account getAccount(long id) {
+        log.info("Getting account by id through mediator...");
+        return accountService.getAccount(id);
     }
 }

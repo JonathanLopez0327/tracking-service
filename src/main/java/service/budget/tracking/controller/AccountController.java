@@ -59,13 +59,6 @@ public class AccountController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_budget-manager') or hasAuthority('ROLE_budget-users')")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAccountById(@PathVariable("id") long id) {
-        accountService.deleteAccountById(id);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @PreAuthorize("hasAuthority('ROLE_budget-manager') or hasAuthority('ROLE_budget-users')")
     @PutMapping("/credit/{id}")
     public ResponseEntity<Void> creditAmount(@PathVariable("id") long id, @RequestParam double amount) {
         accountService.creditAmount(id, amount);
@@ -83,6 +76,13 @@ public class AccountController {
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateAccount(@PathVariable("id") long id, @RequestBody AccountRequest request) {
         accountService.updateAccount(id, request);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAuthority('ROLE_budget-manager') or hasAuthority('ROLE_budget-users')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteAccount(@PathVariable("id") long id) {
+        accountService.deleteAccountById(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

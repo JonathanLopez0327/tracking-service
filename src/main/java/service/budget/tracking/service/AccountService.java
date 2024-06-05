@@ -1,5 +1,6 @@
 package service.budget.tracking.service;
 
+import service.budget.tracking.entity.Account;
 import service.budget.tracking.model.AccountDetailsReponse;
 import service.budget.tracking.model.AccountRequest;
 import service.budget.tracking.model.AccountResponse;
@@ -12,6 +13,8 @@ public interface AccountService {
     List<AccountResponse> getAllAccounts();
 
     AccountResponse getAccountById(long id);
+
+    Account getAccount(long id);
 
     void deleteAccountById(long id);
 

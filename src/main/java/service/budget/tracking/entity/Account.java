@@ -8,7 +8,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import service.budget.tracking.model.AccountType;
 
+import java.util.List;
+
 @Entity
+@Table(name = "account", schema = "tracking")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -16,9 +19,11 @@ import service.budget.tracking.model.AccountType;
 public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long accountId;
+    private long id;
 
+    @NotNull
     private String accountName;
+
     private String accountDescription;
 
     @NotNull
@@ -27,4 +32,10 @@ public class Account {
 
     @NotNull
     private double totalAmount;
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Income> incomes;
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Expense> expenses;
 }

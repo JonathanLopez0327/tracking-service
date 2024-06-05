@@ -7,8 +7,8 @@ import jakarta.validation.ValidatorFactory;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import service.budget.tracking.entity.Account;
 import service.budget.tracking.entity.Income;
 import service.budget.tracking.exception.ServiceCustomException;
 import service.budget.tracking.model.IncomeRequest;
@@ -55,10 +55,12 @@ public class IncomeServiceImpl implements IncomeService {
     public long createIncome(IncomeRequest request) {
         log.info("Creating new income...");
 
+        // Find account
+        Account account = trackingMediator.getAccount(request.getAccountId());
 
         Income income = Income.builder()
                 .incomeAmount(request.getIncomeAmount())
-                .accountId(request.getAccountId())
+                .account(account)
                 .incomeCategory(request.getIncomeCategory())
                 .incomeDescription(request.getIncomeDescription())
                 .incomeDate(Instant.now())
@@ -119,10 +121,16 @@ public class IncomeServiceImpl implements IncomeService {
         log.info("Removing income...");
 
         // Remove from account
-        trackingMediator.debitAmountToAccount(income.getAccountId(), income.getIncomeAmount());
-        log.info("Income removed from account: {}", income.getAccountId());
+        Account account = income.getAccount();
 
+        try {
+            trackingMediator.debitAmountToAccount(account.getId(), income.getIncomeAmount());
+        } catch (ServiceCustomException e) {
+            log.error("Account not found for id: {}, continuing with deletion", account.getId());
+        }
 
+        repository.delete(income);
+        log.info("Income removed!");
         repository.delete(income);
         log.info("Income removed!");
     }
@@ -159,14 +167,20 @@ public class IncomeServiceImpl implements IncomeService {
 
 
         if (request.getAccountId() != 0 && request.getIncomeAmount() != 0) {
-            trackingMediator.debitAmountToAccount(income.getAccountId(), income.getIncomeAmount());
+            try {
+                Account account = income.getAccount();
+                trackingMediator.debitAmountToAccount(account.getId(), income.getIncomeAmount());
+            } catch (ServiceCustomException e) {
+                log.error("Account not found for id: {}, continuing with the update", income.getAccount().getId());
+            }
 
-            income.setAccountId(request.getAccountId());
+            Account newAccount = trackingMediator.getAccount(request.getAccountId());
+            income.setAccount(newAccount);
             income.setIncomeAmount(request.getIncomeAmount());
 
-
             try {
-                trackingMediator.creditAmountToAccount(income.getAccountId(), income.getIncomeAmount());
+                Account account = income.getAccount();
+                trackingMediator.creditAmountToAccount(account.getId(), income.getIncomeAmount());
                 log.info("Account updated!");
                 repository.save(income);
                 log.info("Income updated!");

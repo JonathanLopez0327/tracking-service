@@ -11,6 +11,7 @@ import service.budget.tracking.model.IncomeCategory;
 import java.time.Instant;
 
 @Entity
+@Table(name = "income", schema = "tracking")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,7 +21,12 @@ public class Income {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long incomeId;
-    private long accountId;
+
+    @ManyToOne
+    @JoinColumn(name = "account_id")
+    private Account account;
+
+    @NotNull
     private double incomeAmount;
 
     @NotNull

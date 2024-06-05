@@ -9,6 +9,7 @@ import service.budget.tracking.model.ExpenseCategory;
 import java.time.Instant;
 
 @Entity
+@Table(name = "expense", schema = "tracking")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,8 +18,12 @@ public class Expense {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long expenseId;
-    private long accountId;
 
+    @ManyToOne
+    @JoinColumn(name = "account_id")
+    private Account account;
+
+    @NotNull
     private double expenseAmount;
 
     @NotNull

@@ -39,7 +39,7 @@ public class AccountServiceImpl implements AccountService {
 
         repository.save(account);
         log.info("Account created!");
-        return account.getAccountId();
+        return account.getId();
     }
 
     @Override
@@ -68,6 +68,16 @@ public class AccountServiceImpl implements AccountService {
         AccountResponse response = new AccountResponse();
         BeanUtils.copyProperties(account, response);
         return response;
+    }
+
+    @Override
+    public Account getAccount(long id) {
+        log.info("Getting account with given id: {}", id);
+
+        return repository.findById(id)
+                .orElseThrow(() -> new ServiceCustomException(
+                        "Account with given id not found",
+                        "ACCOUNT_NOT_FOUND", 404));
     }
 
     @Override
@@ -123,6 +133,7 @@ public class AccountServiceImpl implements AccountService {
             account.setTotalAmount(account.getTotalAmount() - amount);
             repository.save(account);
             log.info("Total amount debited!");
+
         } else {
             throw new ServiceCustomException(
                     "Amount must not be null",
@@ -177,7 +188,7 @@ public class AccountServiceImpl implements AccountService {
         }
 
         if (!request.getAccountName().isEmpty()) {
-            account.setAccountName(request.getAccountDescription());
+            account.setAccountName(request.getAccountName());
         }
 
         if (!request.getAccountType().toString().isEmpty()) {
@@ -210,7 +221,7 @@ public class AccountServiceImpl implements AccountService {
         List<ExpenseResponse> expenseResponses = accountMediator.getExpensesFromAccount(id);
 
         return AccountDetailsReponse.builder()
-                .accountId(account.getAccountId())
+                .accountId(account.getId())
                 .accountName(account.getAccountName())
                 .accountDescription(account.getAccountDescription())
                 .accountType(account.getAccountType())
@@ -229,13 +240,13 @@ public class AccountServiceImpl implements AccountService {
         List<AccountDetailsReponse> accountResponses = new ArrayList<>();
 
         for (Account account : accounts) {
-            long id = account.getAccountId(); // Asumiendo que el id se llama "id"
+            long id = account.getId(); // Asumiendo que el id se llama "id"
 
             List<IncomeResponse> incomeResponses = accountMediator.getIncomesFromAccount(id);
             List<ExpenseResponse> expenseResponses = accountMediator.getExpensesFromAccount(id);
 
             AccountDetailsReponse response = AccountDetailsReponse.builder()
-                    .accountId(account.getAccountId())
+                    .accountId(account.getId())
                     .accountName(account.getAccountName())
                     .accountDescription(account.getAccountDescription())
                     .accountType(account.getAccountType())
