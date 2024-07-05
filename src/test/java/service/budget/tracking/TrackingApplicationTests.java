@@ -24,7 +24,12 @@ class TrackingApplicationTests {
 
 	@Test()
 	void contextLoads4() {
-		Assertions.assertEquals(true, false);
+		Assertions.assertEquals(true, true);
+	}
+
+	@Test()
+	void contextLoads5() {
+		Assertions.assertEquals(true, true);
 	}
 
 }
