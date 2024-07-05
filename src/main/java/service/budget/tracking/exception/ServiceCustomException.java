@@ -9,14 +9,14 @@ public class ServiceCustomException extends RuntimeException {
     private String errorCode;
     private int status;
 
-    public ServiceCustomException(String message, String erroCode) {
+    public ServiceCustomException(String message, String errorCode) {
         super(message);
-        this.errorCode = erroCode;
+        this.errorCode = errorCode;
     }
 
-    public ServiceCustomException(String message, String erroCode, int status) {
+    public ServiceCustomException(String message, String errorCode, int status) {
         super(message);
-        this.errorCode = erroCode;
+        this.errorCode = errorCode;
         this.status = status;
     }
 }
