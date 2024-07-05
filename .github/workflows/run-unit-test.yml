@@ -1,12 +1,12 @@
-name: run unit test of new features
+name: Run Unit Tests for New Features
 
 on:
   push:
     branches:
-      'features/*'
+      - 'features/*'
 
 jobs:
-  run-unit-test:
+  run-unit-tests:
     runs-on: ubuntu-latest
 
     steps:
