@@ -27,9 +27,6 @@ class TrackingApplicationTests {
 		Assertions.assertEquals(true, true);
 	}
 
-	@Test()
-	void contextLoads5() {
-		Assertions.assertEquals(true, true);
-	}
+	
 
 }
