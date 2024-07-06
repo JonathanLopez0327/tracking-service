@@ -27,6 +27,6 @@ class TrackingApplicationTests {
 		Assertions.assertEquals(true, true);
 	}
 
-	
+
 
 }
