@@ -3,7 +3,7 @@ name: Run Unit Tests for New Features
 on:
   push:
     branches:
-      - 'features/**' # Changed to '**' to correctly match branches under features/
+      - 'main' # Changed to '**' to correctly match branches under features/
 
 jobs:
   run-unit-tests:
