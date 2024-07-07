@@ -12,6 +12,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.7
-
+        
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4.2.1
+        with:
+          java-version: '21' # Matches the Java version specified in your pom.xml
+          distribution: 'temurin' # AdoptOpenJDK is now Eclipse Temurin
+          
       - name: Run unit tests
         run: mvn test
